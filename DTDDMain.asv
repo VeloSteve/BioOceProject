@@ -76,14 +76,12 @@ for i = 2:nt
     %animateDTDD(Rt(:,i),z(:,i),i,filename,Kz)
 end
 %}
-
 Rt=zeros(10^n,2); % This vector will hold our DT/DD ratios for each phytoplankton
 Rt(:,1)=Req(:,1);
 for i = 2:nt
-    % For 12 hours, 100 meters, and n=4, this takes 0.03 seconds in vector form
-    % as shown, and 13.04 seconds with a "for" loop.  A 435x win.  Results are 
-    % identical.
-    Rt(:,2)=NickEq2(Req(:,i),Rt(:,1),r,(dt/60));
+    for j = 1:10^n
+        Rt(j,2)=NickEq2(Req(j,i),Rt(j,1),r,(dt/60));
+    end
     Rt(:,1)=Rt(:,2); % by copying the results of the random walks in our 
                      % second column into our first column, this allows the
                      % simulation to step through every timestep and
@@ -92,6 +90,22 @@ for i = 2:nt
                      % timestep.
 end
 Rt(:,1)=[];
+
+% Repeat with vectorization
+Rt2=zeros(10^n,2); % This vector will hold our DT/DD ratios for each phytoplankton
+Rt2(:,1)=Req(:,1);
+for i = 2:nt
+    % For 12 hours, 100 meters, and n=4, this takes 0.03 seconds in vector form
+    % as shown
+    Rt2(:,2)=NickEq2(Req(:,i),Rt2(:,1),r,(dt/60));
+    Rt2(:,1)=Rt2(:,2); % by copying the results of the random walks in our 
+                     % second column into our first column, this allows the
+                     % simulation to step through every timestep and
+                     % advance the phytoplankton without having to keep all
+                     % the unecessary records of their Rt values for each
+                     % timestep.
+end
+Rt2(:,1)=[];
 
 
 % Now we want to collect the variance in the Rt values for each meter of
