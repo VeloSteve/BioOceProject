@@ -20,7 +20,9 @@ function [Rt,Mu,Sig] = DTDDMain(n,HH,MM,Kz,irr,maxZ)
 tic
 h1=msgbox('Simulation In Progress','Simulation Running','warn');
 start = datenum('07-24-2014 06:00:00'); % the start time for our simulation
-stop = datenum(['07-24-2014 ' HH ':' MM ':00']);  % user defined end time
+% JSR the next line had a mix of numbers and text which led to a negative
+% simulation time!  Perhaps this is due to Matlab version changes.
+stop = datenum([2014, 7, 24, HH, MM, 0]);  % user defined end time
 simtime = datestr(stop-start,15);
 start=datevec(start);stop=datevec(stop); % the etime function requires dates in vector format
 nt=(etime(stop,start)/60); % this is the number of iterations in our simulation;
@@ -74,12 +76,14 @@ for i = 2:nt
     %animateDTDD(Rt(:,i),z(:,i),i,filename,Kz)
 end
 %}
+
 Rt=zeros(10^n,2); % This vector will hold our DT/DD ratios for each phytoplankton
 Rt(:,1)=Req(:,1);
 for i = 2:nt
-    for j = 1:10^n
-        Rt(j,2)=NickEq2(Req(j,i),Rt(j,1),r,(dt/60));
-    end
+    % For 12 hours, 100 meters, and n=4, this takes 0.03 seconds in vector form
+    % as shown, and 13.04 seconds with a "for" loop.  A 435x win.  Results are 
+    % identical.
+    Rt(:,2)=NickEq2(Req(:,i),Rt(:,1),r,(dt/60));
     Rt(:,1)=Rt(:,2); % by copying the results of the random walks in our 
                      % second column into our first column, this allows the
                      % simulation to step through every timestep and
@@ -88,6 +92,8 @@ for i = 2:nt
                      % timestep.
 end
 Rt(:,1)=[];
+
+
 % Now we want to collect the variance in the Rt values for each meter of
 % depth in the water column.  We have built a function to provide this to
 % us, we just need to input the column of both Rt and z that correspond to
