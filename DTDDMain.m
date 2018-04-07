@@ -104,7 +104,7 @@ T1=DTDDMuSig(Rt,z); % this will output a data table which
                                   % dev) of data.  Each row will correspond
                                   % to a 1m interval in the water column
 scrz=get(0,'ScreenSize');
-figure('Position',scrz);
+figure('Position',scrz/2);
 scatter(Rt,z)
 hold on
 plot(T1.Mu,1:ceil(max(z())),'--go','LineWidth',3)
@@ -117,6 +117,16 @@ legend('DT/DD Final','Mean DT/DD','St Dev DT/DD','location','SouthEast')
 mytitle = sprintf(['Mean DT/DD ratios as a function of depth \n'...
     'Cells: 10^%i, Kz: %i cm^2/s, Time: %s hrs'],n,Kz,simtime);
 title(mytitle,'FontSize',12)
+
+% Temporary check by JSR - see if particles are biased up or down.  They start
+% evenly distributed, so the final distribution should also be constant.
+% Get the number of particles in each meter interval from 0 to maxZ (rounded
+% down).
+figure('Position',scrz/2 + [0, scrz(4)/2-60, 0, 0]);
+histogram(z, maxZ)
+xlabel('Depth (m)');
+ylabel('Particles per meter');
+
 Mu=T1.Mu;Sig = T1.Sig;
 t(2)=toc;
 
