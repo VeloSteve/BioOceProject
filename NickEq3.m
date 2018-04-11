@@ -12,8 +12,9 @@ function[Iz]= NickEq3( Io,z,varargin )
     end
     k = 1.8/30; % light attenuation coefficient
     [m,n]=size(z); % getting the size of our depth matrix
-    [r,c]=size(Io); % determining if the surface iradiance is a matrix or vector
+    [r,c]=size(Io); % determining if the surface irradiance is a matrix or vector
     if m > r
+        % JSR - this does the same thing regardless of the if test!!!
         if n > 0
             Io=repmat(Io,m,1); % generating an equal sized matrix of Io.  This is needed
         else
@@ -23,7 +24,7 @@ function[Iz]= NickEq3( Io,z,varargin )
         if n>0
             Io=repmat(Io(t),1,n);
         else
-            Io=repmat(Io,1,n); % if it's not different in one dimenion, maybe it's
+            Io=repmat(Io,1,n); % if it's not different in one dimension, maybe it's
         end
     end                    % the other.
     Iz = Io.*exp(-k.*z); % dot notation used to ensure elementwise mulitplication of matrices

@@ -7,6 +7,7 @@
 % irr is a 1x721 array in the default state.
 % 721 = 1 + 60*12
 tic
-irr = irrCall_noGUI();
-DTDDMain(5, 18, 0, 10, irr, 100);
+DTDDMain(5, 18, 0, 10, 100);
+% short run for test:
+%DTDDMain(5, 8, 0, 10, 100);
 toc

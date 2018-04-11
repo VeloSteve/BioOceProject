@@ -1,4 +1,4 @@
-function [Rt,Mu,Sig] = DTDDMain(n,HH,MM,Kz,irr,maxZ)
+function [Rt,Mu,Sig] = DTDDMain(n,HH,MM,Kz,maxZ)
 %DTDDMAIN This is the main function that is called through the use of the
 %DTDDGui.  It calls all necessary functions to simulate the change in
 %daitoxanthin/diadinoxanthin ratios for 10^n number of phytoplankton spaced
@@ -25,16 +25,29 @@ start = datenum('07-24-2014 06:00:00'); % the start time for our simulation
 stop = datenum([2014, 7, 24, HH, MM, 0]);  % user defined end time
 simtime = datestr(stop-start,15);
 start=datevec(start);stop=datevec(stop); % the etime function requires dates in vector format
-nt=(etime(stop,start)/60); % this is the number of iterations in our simulation;
+
+% ERROR in original: the dt variable was provided, but the number of timesteps
+% was hardcoded based on dt = 60.  This is now fixed.
+dt = 60; % this is our delta t (60 = 1 minute in seconds)
+nt=(etime(stop,start)/dt); % this is the number of iterations in our simulation;
                            % the number of minutes between start and end
                            % times.
+                          
+% Irr needs to be interpolated to match the step size, so call it here after
+% dt is set.
+irr = irrCall_noGUI(dt);
+
+                           
 clear start; clear stop;
-dt = 60; % this is our delta t (1 minute in seconds)
+
 fKz = Kz*10^(-4); % converting from cm^2/s to m^2/s
 
 if length(irr) > nt
    irr = irr(1:nt); % We only want the matrix to be as long as is needed.
+elseif length(irr) < nt
+    error("Not enough irradiance values for the specified time span!");
 end
+% JSR irr values are received on a 1-minute interval, but 
 t=zeros(1,2); % We need to determine how long this will take.
 
 z = DepthArray(n,dt,nt,fKz,maxZ); % Generating our matrix of the depths experienced
@@ -94,7 +107,7 @@ end
 Rt(:,1)=[];
 
 
-% Now we want to collect the variance in the Rt values for each meter of
+% Now we want to collect the variance in the Rt valcloues for each meter of
 % depth in the water column.  We have built a function to provide this to
 % us, we just need to input the column of both Rt and z that correspond to
 % the time we are interested in. 
@@ -115,7 +128,7 @@ ylabel('Depth (m)')
 legend('DT/DD Final','Mean DT/DD','St Dev DT/DD','location','SouthEast')
 
 mytitle = sprintf(['Mean DT/DD ratios as a function of depth \n'...
-    'Cells: 10^%i, Kz: %i cm^2/s, Time: %s hrs'],n,Kz,simtime);
+    'Cells: 10^%i, Kz: %i cm^2/s, Time: %s hrs, dt: %d s'], n, Kz, simtime, dt);
 title(mytitle,'FontSize',12)
 
 % Temporary check by JSR - see if particles are biased up or down.  They start
@@ -126,6 +139,7 @@ figure('Position',scrz/2 + [0, scrz(4)/2-60, 0, 0]);
 histogram(z, maxZ)
 xlabel('Depth (m)');
 ylabel('Particles per meter');
+title(sprintf('Particle distribution, 10^%d particles, dt = %d', n, dt))
 
 Mu=T1.Mu;Sig = T1.Sig;
 t(2)=toc;
