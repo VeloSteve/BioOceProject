@@ -16,7 +16,7 @@ function [z] = DepthArray(n, dt, nt, Kz, maxZ)
     z = zeros(10^n, nt); % holding vector for our depth values. 
 
     z(:, 1) = linspace(0, maxZ, 10^n);
-    Kz_vec = Kz_distribution(Kz, 10^n);
+    Kz_vec = Kz_distribution(Kz, maxZ, 10^n);
     naive = false;
     if naive
         walk = sqrt(2*dt*Kz_vec); % this is the distance that will be walked,
@@ -27,16 +27,35 @@ function [z] = DepthArray(n, dt, nt, Kz, maxZ)
         % Use a random walk model from Visser(1997), equation 6.
         % We will use a random number inside the loop, but first generate
         % anything which is constant.
+
+        
+        %% As a check of Visser's condition at the end of page 277, calculate
+        % the second derivative and compare to the timestep.
+        K_2nd = derivative_2nd(Kz_vec, z(:, 1));
+        % Visser (in text not code) specifies min(1/K''), but this gives
+        % infinite values in regions where slope is constant.  This can't be
+        % right, so look only at values which are not too small.
+        %K_2_reduced = K_2nd(abs(K_2nd) > 0.001);
+        %compare_to = min(1./K_2_reduced);
+        % V2 - use absolute values
+        compare_to = min(1./abs(K_2nd));
+        fprintf("dt is %d and min(1/K'') is %d\n", dt, compare_to);
+        
+        %%
         % The first derivative  of Kz, using a central difference, except at the
         % ends.  XXX - check whether a forward difference would be better, since
         % the equation it is used in isn't centered.
         K_prime = derivative(Kz_vec, z(:, 1), 'central');
-        % Visser states that the standard deviation of a R, a uniform distribution
-        % -1 and 1 is 1/3, but it's sqrt(1/3).  Maybe I misunderstood something
-        % but I'm using sqrt(1/3) until proven otherwise.
+                
+        % Visser states that the standard deviation of a R, a uniform
+        % distribution between -1 and 1 is 1/3, but it's sqrt(1/3).  Maybe I
+        % misunderstood something but I'm using sqrt(1/3) until proven
+        % otherwise.
         r = sqrt(1/3);
         walkA = K_prime * dt;  % constant part of the step magnitude
         % The next term relies on K evaluated at an offset location!
+        % NOTE that z_offset is no longer monotonic.  Changes are bigger than
+        % the initial increments between particles.
         z_offset = z(:, 1) + K_prime*dt/2.0;
         K_offset = interp1(z(:, 1), Kz_vec, z_offset, 'linear', 'extrap');
         walkB = sqrt(2/r * K_offset * dt);
@@ -55,13 +74,26 @@ function [z] = DepthArray(n, dt, nt, Kz, maxZ)
             % walk A and walkB are arrays spaced at the initial depths, but at
             % each time step the particles move, so their K values must be found by
             % another interpolation!
-            % Note: interp1 can do both at once, but code that later.
-            wA = interp1(z(:,1), walkA, z(i-1));
-            wB = interp1(z(:,1), walkB, z(i-1));
-            pm = wA + wB .* (2*rand(10^n, 1)-1.0);
+            wA = interp1(z(:,1), walkA, z(:, i-1));
+            wB = interp1(z(:,1), walkB, z(:, i-1));
+            waf = 0.6; % 1.0 is the Visser algorithm.
+            % For dt = 60:
+            % 1.0 pumps left, max 1300 min 480
+            % 0.0 right, 2400, 600
+            % 0.5 right, 1200, 970
+            % 0.6 GOOD - looks level
+            % Now for dt = 6:
+            % 0.6 GOOD
+            % 0.5 right, 1150, 900
+            % 1.0 left, 1280, 450
+            % 0.7 left, 1100, 750
+            % with naive, waf is irrelevant, right 1280, 780, wider range
+            % affected
+            % One more check with dt = 3 (algorithm suggests < 3.33)
+            pm = waf*wA + wB .* (2*rand(10^n, 1)-1.0);
         end
-        if ~mod(i, 100)
-            fprintf('at i = %d pm(10) = %d, max = %d\n', i, pm(10), max(pm));
+        if ~mod(i, 1000)
+            fprintf('at time i = %d pm(10) = %d, max = %d\n', i, pm(10), max(pm));
         end
         z(:,i)=z(:,i-1)+pm;
         % Calculate boundaries in vector form.  1.147 seconds for n=4 becomes
@@ -73,9 +105,6 @@ function [z] = DepthArray(n, dt, nt, Kz, maxZ)
                    
       clear pm;
     end
-clear i; clear j; clear walk, clear pm;
-
-    
+    clear i; clear j; clear walk, clear pm, clear ltz, clear gtmax;
 
 end
-
