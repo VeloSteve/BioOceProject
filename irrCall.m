@@ -1,4 +1,4 @@
-function [] = irrCall( source,eventdata )
+function [] = irrCall( source, ~, showPlot )
 %IRRCALL This function loads irrandiance data and plots it for the user
 %   This is a callback function to be used as part of the DTDDGui.  It is
 %   inteded to allow the user to visualize the irradiance values being used
@@ -22,12 +22,14 @@ irr=(irr./max(irr)); % values are going a bit above 1 for some points
 
 surfI=irr*100; %The values in irr run from 0 to 1.  Nick wants
 % I values from 0 to 100 so we are modifying it.
-figure
-plot(newT,surfI)
-tick1=get(gca,'Xtick');
-set(gca,'Xticklabel',datestr(tick1,15))
-xlabel('time of day')
-ylabel('Solar Insolation')
-setappdata(source,'irrVals',irr);
+if showPlot
+    figure
+    plot(newT,surfI)
+    tick1=get(gca,'Xtick');
+    set(gca,'Xticklabel',datestr(tick1,15))
+    xlabel('time of day')
+    ylabel('Solar Insolation')
+    setappdata(source,'irrVals',irr);
+end
 end
 
