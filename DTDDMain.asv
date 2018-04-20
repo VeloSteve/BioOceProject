@@ -127,7 +127,7 @@ T1=DTDDMuSig(Rt,z); % this will output a data table which
                                   % to a 1m interval in the water column
 scrz=get(0,'ScreenSize');
 %figure('Position',scrz/2);
-figure('Position', [1, 1, scrz(3)/5, scrz(4)]);
+figure('Position', [1, 1, scrz(1)/4, scrz(4)]);
 
 scatter(Rt,z)
 hold on
@@ -145,11 +145,9 @@ title(mytitle,'FontSize',12)
 
 % See if particles are biased up or down.  They start
 % evenly distributed, so the final distribution should also be constant.
-figure('Position', [scrz(3)/5, 1, scrz(3)/5, scrz(4)]);
+figure('Position', [scrz(1)/4, 1, scrz(1)/4, scrz(4)]);
 bins = histcounts(z(:, end), maxZ);
-barh(bins, 1);
-hold on;
-plot([10^n/maxZ, 10^n/maxZ], [0, maxZ]);
+barh(bins);
 set(gca,'YDir','reverse','XAxisLocation','Top')
 xlabel('Particles per meter');
 ylabel('Depth(m)');

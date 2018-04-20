@@ -8,7 +8,7 @@ function [z] = DepthArray(n, dt, nt, Kz, maxZ)
 %       n - number of cells (10^n)
 %       dt - change in time with each step (in seconds)
 %       nt - number of time steps
-%       Kz - vertical mixing coefficient
+%       Kz - vertical mixing coefficient in m^2/s
 %   OUTPUTS
 %       z - a 10^n x nt matrix of the depth experienced by each cell for each
 %       step in time
@@ -16,7 +16,7 @@ function [z] = DepthArray(n, dt, nt, Kz, maxZ)
     z = zeros(10^n, nt); % holding vector for our depth values. 
 
     z(:, 1) = linspace(0, maxZ, 10^n);
-    Kz_vec = Kz_distribution(Kz, maxZ, 10^n);
+    Kz_vec = Kz_distribution(Kz, z(:, 1));
     naive = false;
     if naive
         walk = sqrt(2*dt*Kz_vec); % this is the distance that will be walked,
@@ -59,7 +59,8 @@ function [z] = DepthArray(n, dt, nt, Kz, maxZ)
         z_offset = z(:, 1) + K_prime*dt/2.0;
         K_offset = interp1(z(:, 1), Kz_vec, z_offset, 'linear', 'extrap');
         walkB = sqrt(2/r * K_offset * dt);
-        fprintf('First, 10th, last walkA values %d, %d, %d, min = %d, max = %d\n', walkA(1), walkA(10), walkA(end), min(walkA), max(walkA));
+        fprintf('First, 10th, last walkA values %d, %d, %d, min = %d, max = %d\n', ...
+            walkA(1), walkA(10), walkA(end), min(walkA), max(walkA));
         fprintf('First, 10th, last walkB values %d, %d, %d\n', walkB(1), walkB(10), walkB(end));
 
     end
@@ -69,7 +70,10 @@ function [z] = DepthArray(n, dt, nt, Kz, maxZ)
             pm = sign(0.50-rand(10^n,1)); % a matrix of randomly generated positive
                                        % or negative ones that will the random
                                        % part of our simulated walk.
-            pm = pm .* walk;
+            % As below, walk is based on the original locations.  Interpolate
+            % for current values.
+            walk_now = interp1(z(:,1), walk, z(:, i-1));
+            pm = pm .* walk_now;
         else
             % walk A and walkB are arrays spaced at the initial depths, but at
             % each time step the particles move, so their K values must be found by
