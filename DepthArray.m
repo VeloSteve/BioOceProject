@@ -1,21 +1,21 @@
-function [z] = DepthArray(n, dt, nt, Kz, maxZ)
+function [z] = DepthArray(N, dt, nt, Kz, maxZ)
 %DepthArray This function is used to reduce the memory load on the
-%Nicks_DTDD script.  It takes in the number of time steps and the n value
-%(10^n) which determines how many cells we will be dealing with and returns
+%Nicks_DTDD script.  It takes in the number of time steps and the N value
+% which determines how many cells we will be dealing with and returns
 %a completed depth matrix.  It dstributes the 10^n cells over the top 100m
 %and performs a random walk simulation for each cell over each time step
 %   INPUTS
-%       n - number of cells (10^n)
+%       N - number of cells 
 %       dt - change in time with each step (in seconds)
 %       nt - number of time steps
 %       Kz - vertical mixing coefficient in m^2/s
 %   OUTPUTS
-%       z - a 10^n x nt matrix of the depth experienced by each cell for each
+%       z - a N x nt matrix of the depth experienced by each cell for each
 %       step in time
 
-    z = zeros(10^n, nt); % holding vector for our depth values. 
+    z = zeros(N, nt); % holding vector for our depth values. 
 
-    z(:, 1) = linspace(0, maxZ, 10^n);
+    z(:, 1) = linspace(0, maxZ, N);
     Kz_vec = Kz_distribution(Kz, z(:, 1));
     naive = false;
     if naive
@@ -67,7 +67,7 @@ function [z] = DepthArray(n, dt, nt, Kz, maxZ)
 % Now that we have our starting depths, we perform our random walk
     for i = 2:nt % time step loop
         if naive
-            pm = sign(0.50-rand(10^n,1)); % a matrix of randomly generated positive
+            pm = sign(0.50-rand(N,1)); % a matrix of randomly generated positive
                                        % or negative ones that will the random
                                        % part of our simulated walk.
             % As below, walk is based on the original locations.  Interpolate
@@ -94,7 +94,7 @@ function [z] = DepthArray(n, dt, nt, Kz, maxZ)
             % with naive, waf is irrelevant, right 1280, 780, wider range
             % affected
             % One more check with dt = 3 (algorithm suggests < 3.33)
-            pm = waf*wA + wB .* (2*rand(10^n, 1)-1.0);
+            pm = waf*wA + wB .* (2*rand(N, 1)-1.0);
         end
         if ~mod(i, 1000)
             fprintf('at time i = %d pm(10) = %d, max = %d\n', i, pm(10), max(pm));

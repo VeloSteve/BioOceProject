@@ -59,7 +59,10 @@ end
 % JSR irr values are received on a 1-minute interval, but 
 t=zeros(1,2); % We need to determine how long this will take.
 
-z = DepthArray(n,dt,nt,fKz,maxZ); % Generating our matrix of the depths experienced
+% From here, convert n the exponent to N, a count.  This allows use of 
+% fractional n without the need for type casts or "floor"s here and there.
+N = floor(10^n);
+z = DepthArray(N,dt,nt,fKz,maxZ); % Generating our matrix of the depths experienced
                                  % by each phytoplankton over each time
                                  % step.  Each row corresponds to an
                                  % individual phytplankton cell while each
@@ -99,7 +102,7 @@ for i = 2:nt
 end
 %}
 
-Rt=zeros(10^n,2); % This vector will hold our DT/DD ratios for each phytoplankton
+Rt=zeros(N,2); % This vector will hold our DT/DD ratios for each phytoplankton
 Rt(:,1)=Req(:,1);
 for i = 2:nt
     % For 12 hours, 100 meters, and n=4, this takes 0.03 seconds in vector form
@@ -139,7 +142,7 @@ ylabel('Depth (m)')
 legend('DT/DD Final','Mean DT/DD','St Dev DT/DD','location','SouthEast')
 
 mytitle = sprintf(['Mean DT/DD ratios as a function of depth \n'...
-    'Cells: 10^%i, Time: %s hrs, dt: %d s'], n, simtime, dt);
+    'Cells: 10^{%2.1f}, Time: %s hrs, dt: %d s'], n, simtime, dt);
 %    'Cells: 10^%i, Kz: %i cm^2/s, Time: %s hrs, dt: %d s'], n, Kz, simtime, dt);
 title(mytitle,'FontSize',12)
 
@@ -149,7 +152,7 @@ figure('Position', [scrz(3)/5, 1, scrz(3)/5, scrz(4)]);
 bins = histcounts(z(:, end), maxZ);
 barh(bins, 1);
 hold on;
-plot([10^n/maxZ, 10^n/maxZ], [0, maxZ]);
+plot([N/maxZ, N/maxZ], [0, maxZ]);
 set(gca,'YDir','reverse','XAxisLocation','Top')
 xlabel('Particles per meter');
 ylabel('Depth(m)');
