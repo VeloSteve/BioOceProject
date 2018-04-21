@@ -13,7 +13,11 @@ tic
 % plot which results.  
 kZ = [[  0,  10,  85,  95, 100, 105, 115, 200];
       [ 10, 100, 100, 1.5,   1, 1.5,  10,  10]]';
-DTDDMain(4, 18, 0, kZ, 150);
+dt = 60;
+% Irr needs to be interpolated to match the step size, so call it here after
+% dt is set.
+irr = irrCall_noGUI(dt);
+DTDDMain(4, 18, 0, kZ, irr, 150, 60);
 % short run for test:
 %DTDDMain(5, 8, 0, 10, 100);
 toc

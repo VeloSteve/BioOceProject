@@ -1,4 +1,4 @@
-function [Rt,Mu,Sig] = DTDDMain(n,HH,MM,Kz,maxZ)
+function [Rt,Mu,Sig] = DTDDMain(n,HH,MM,Kz,irr, maxZ, dt)
 %DTDDMAIN This is the main function that is called through the use of the
 %DTDDGui.  It calls all necessary functions to simulate the change in
 %daitoxanthin/diadinoxanthin ratios for 10^n number of phytoplankton spaced
@@ -20,6 +20,14 @@ function [Rt,Mu,Sig] = DTDDMain(n,HH,MM,Kz,maxZ)
 %       Sig - the standard deviation of the DT/DD ratios for each meter of
 %       the water column considered.
 tic
+
+% ERROR in original: the dt variable was provided, but the number of timesteps
+% was hardcoded based on dt = 60.  This is now fixed.  It's also now an optional
+% argument.
+if nargin < 7
+    dt = 60; % this is our delta t (60 = 1 minute in seconds)
+end
+
 h1=msgbox('Simulation In Progress','Simulation Running','warn');
 start = datenum('07-24-2014 06:00:00'); % the start time for our simulation
 % JSR the next line had a mix of numbers and text which led to a negative
@@ -28,16 +36,12 @@ stop = datenum([2014, 7, 24, HH, MM, 0]);  % user defined end time
 simtime = datestr(stop-start,15);
 start=datevec(start);stop=datevec(stop); % the etime function requires dates in vector format
 
-% ERROR in original: the dt variable was provided, but the number of timesteps
-% was hardcoded based on dt = 60.  This is now fixed.
-dt = 60; % this is our delta t (60 = 1 minute in seconds)
+
 nt=(etime(stop,start)/dt); % this is the number of iterations in our simulation;
                            % the number of minutes between start and end
                            % times.
                           
-% Irr needs to be interpolated to match the step size, so call it here after
-% dt is set.
-irr = irrCall_noGUI(dt);
+
 
                            
 clear start; clear stop;
@@ -54,9 +58,9 @@ end
 if length(irr) > nt
    irr = irr(1:nt); % We only want the matrix to be as long as is needed.
 elseif length(irr) < nt
-    error("Not enough irradiance values for the specified time span!");
+    error("Not enough irradiance values (%d) for the specified time span (%d)!",...
+        length(irr), nt)
 end
-% JSR irr values are received on a 1-minute interval, but 
 t=zeros(1,2); % We need to determine how long this will take.
 
 % From here, convert n the exponent to N, a count.  This allows use of 
@@ -79,7 +83,7 @@ z(:,1:(nt-1))=[]; % Since Nick is only interested in the spread of DT/DD ratios
                 % all the earlier depth values of phytoplankton depth and
                 % free up some memory.
 Req = NickEq1(Iz); % this gives us the DT/DD equilibrium ratio our
-                   % phytoplankton are desparately trying to achieve.
+                   % phytoplankton are desperately trying to achieve.
 clear Iz; % We only need the Iz values to calculate Req, we can now free up
           % some memory by removing it.
 r = 0.0232; % our reaction rate (1.39/h on per minute basis).  This is the 
@@ -119,7 +123,7 @@ end
 Rt(:,1)=[];
 
 
-% Now we want to collect the variance in the Rt valcloues for each meter of
+% Now we want to collect the variance in the Rt values for each meter of
 % depth in the water column.  We have built a function to provide this to
 % us, we just need to input the column of both Rt and z that correspond to
 % the time we are interested in. 
