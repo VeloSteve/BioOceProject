@@ -1,20 +1,10 @@
 function [irr] = irrCall_noGUI(step_seconds )
-%IRRCALL_QUIET This function performs the same operation as the irrCall
+%IRRCALL_NOGUI This function performs the same operation as the irrCall
 %function within the DTDDGui function.  This one simply does not produce a
 %plot as part of that.
 %   This is to be used when the user has not already loaded irradiance data
 %   by viewing a plot of the irradiance profile.
-%{
-a=path;
-b=strfind(a,'Dropbox');
-semC = strfind(a,';');
-if semC(1)<b(1)
-    dropPath=a(semC(1)+1:b(1)-1);
-else
-    dropPath=a(1:b(1)-1);
-end
-irr=importdata([dropPath 'Dropbox\MLML Student Data\Matlab Programs\NicksModel\dayIrr.mat']); % getting our daily irradiance values <-single vector (irr)
-%}
+
 irr=importdata('dayIrr.mat');
 % irr is a vector with solar irradiance values from 06:00 to 18:00 every
 % 5 minutes.  We are going to interpolate the 5 minute data onto a time
