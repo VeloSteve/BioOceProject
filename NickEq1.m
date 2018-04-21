@@ -1,6 +1,6 @@
 function [R] = NickEq1(I)
 %NickEq1 This function computes the equation used to describe the ratio of
-%daitoxanthin to diadinoxanthin at a steady state as a function of light.
+%diatoxanthin to diadinoxanthin at a steady state as a function of light.
 % i.e. Req
 %   INPUTS:
 %       I - light irrandiance

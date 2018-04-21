@@ -15,11 +15,11 @@ function dist = Kz_distribution(Kz, z)
         semilogx(dist_makima, z, '-b', 'DisplayName', 'Makima interpolation');
 
         set(gca,'YDir','reverse','XAxisLocation','Top')
-        xlabel('Log(Kz) [m^2/s]');
+        xlabel('Kz [m^2/s]');
         ylabel('Depth [m]');
         legend('Location', 'best')
         drawnow()
-        dist = dist_makima
+        dist = dist_makima;
     end
 
 end

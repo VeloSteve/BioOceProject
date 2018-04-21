@@ -15,12 +15,9 @@ function [Rt] = NickEq2(Re,Ro,r,t)
     % out at each step, thus allowing us to input large vectors rather than
     % just single values and have the equation behave properly.
     
-    t1 = (Re-Ro); % this one doesn't need an elementwise operator but we 
-                  % separate it out anyway
-    t2 = exp(-r.*t);
-    t3 = t1.*t2;
+    t1 = (Re-Ro); 
+    t2 = exp(-r*t);
+    t3 = t1*t2;
     Rt = Re-t3;
-
-
 end
 
