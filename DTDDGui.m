@@ -1,4 +1,4 @@
-function [f] = DTDDGui(varargin)
+function DTDDGui(varargin)
 %DTDDGUI This function runs the GUI by which users interact with the DTDD
 %simulation.
 %   This function generates a GUI that users will use to run the DT/DD
@@ -16,7 +16,7 @@ end
 %}
 % creating and hiding the GUI as it is being built
 f=figure('Visible','on','Position',[2360,200,450,385]);
-set(f,'Name','Daitoxanthin/Diadinoxanthin mixing simulation')
+set(f,'Name','Diatoxanthin/Diadinoxanthin mixing simulation')
 %Initializing the app data we will use to hold our values.  This will let
 %the callback functions be kept separate and reduce the memory load while
 %still passing the necessary values from those callback functions to the
@@ -182,7 +182,7 @@ runSim=uicontrol('Style','pushbutton','String','Run Simulation',...
         else
             KzOut = Kz;
         end
-                
+        
         [Rt,Mu,Sig]=DTDDMain(n,HH,MM,KzOut,irr,maxZ);
         assignin('base','Rt_DTDD',Rt)
         assignin('base','Mean_DTDD',Mu)

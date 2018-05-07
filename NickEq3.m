@@ -9,6 +9,8 @@ function[Iz]= NickEq3( Io,z,varargin )
 %       Iz - light intensity at given depth
     if nargin == 3
         t = varargin{1}; % checking if we have an i iteration value for this function
+    else
+        t = 1;           % code below assumes t is defined
     end
     k = 1.8/30; % light attenuation coefficient
     [m,n]=size(z); % getting the size of our depth matrix

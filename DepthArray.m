@@ -16,7 +16,7 @@ function [z] = DepthArray(N, dt, nt, Kz, maxZ)
     z = zeros(N, nt); % holding vector for our depth values. 
 
     z(:, 1) = linspace(0, maxZ, N);
-    Kz_vec = Kz_distribution(Kz, z(:, 1));
+    Kz_vec = Kz_distribution(Kz, z(:, 1), true);
     naive = false;
     if naive
         walk = sqrt(2*dt*Kz_vec); % this is the distance that will be walked,
@@ -80,7 +80,8 @@ function [z] = DepthArray(N, dt, nt, Kz, maxZ)
             % another interpolation!
             wA = interp1(z(:,1), walkA, z(:, i-1));
             wB = interp1(z(:,1), walkB, z(:, i-1));
-            waf = 0.6; % 1.0 is the Visser algorithm.
+            %wAB = interp1(z(:,1), [walkA walkB], z(:, i-1));
+            waf = 0.6; % 1.0 is the Visser algorithm, 0.6 is my choice (JSR)
             % For dt = 60:
             % 1.0 pumps left, max 1300 min 480
             % 0.0 right, 2400, 600
@@ -94,6 +95,7 @@ function [z] = DepthArray(N, dt, nt, Kz, maxZ)
             % with naive, waf is irrelevant, right 1280, 780, wider range
             % affected
             % One more check with dt = 3 (algorithm suggests < 3.33)
+            %pm = waf*wAB(:, 1) + wAB(:, 2) .* (2*rand(N, 1)-1.0);
             pm = waf*wA + wB .* (2*rand(N, 1)-1.0);
         end
         if ~mod(i, 1000)
@@ -110,5 +112,7 @@ function [z] = DepthArray(N, dt, nt, Kz, maxZ)
       clear pm;
     end
     clear i; clear j; clear walk, clear pm, clear ltz, clear gtmax;
-
+    
+    DepthPlots(z, maxZ, N);
+    
 end

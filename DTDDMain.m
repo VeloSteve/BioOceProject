@@ -1,11 +1,11 @@
 function [Rt,Mu,Sig] = DTDDMain(n,HH,MM,Kz,irr, maxZ, dt)
 %DTDDMAIN This is the main function that is called through the use of the
 %DTDDGui.  It calls all necessary functions to simulate the change in
-%daitoxanthin/diadinoxanthin ratios for 10^n number of phytoplankton spaced
+%diatoxanthin/diadinoxanthin ratios for 10^n number of phytoplankton spaced
 %evenly across the water column defined by z.  All values input into this
 %function are provided by the user through the DTDDGui function.
 %   INPUTS
-%       n = number of phytoplankto cells in the simulation (10^n)
+%       n = number of phytoplankton cells in the simulation (10^n)
 %       HH = The hour value for the end time of the simulation (simulation
 %       begins at 06:00)
 %       MM = The minute value for the end time of the simulation
@@ -54,30 +54,27 @@ else
     fKz = Kz;
     fKz(:, 2) = fKz(:, 2) * 10^-4;
 end
-
 if length(irr) > nt
    irr = irr(1:nt); % We only want the matrix to be as long as is needed.
 elseif length(irr) < nt
     error("Not enough irradiance values (%d) for the specified time span (%d)!",...
         length(irr), nt)
 end
-t=zeros(1,2); % We need to determine how long this will take.
 
 % From here, convert n the exponent to N, a count.  This allows use of 
 % fractional n without the need for type casts or "floor"s here and there.
 N = floor(10^n);
 z = DepthArray(N,dt,nt,fKz,maxZ); % Generating our matrix of the depths experienced
-                                 % by each phytoplankton over each time
-                                 % step.  Each row corresponds to an
-                                 % individual phytplankton cell while each
-                                 % column represents a time step.  The
-                                 % value in each cell is the depth of the
-                                 % phytoplankton at that time step.
-t(1)=toc;
+                                  % by each phytoplankton over each time
+                                  % step.  Each row corresponds to an
+                                  % individual phytplankton cell while each
+                                  % column represents a time step.  The
+                                  % value in each cell is the depth of the
+                                  % phytoplankton at that time step.
 Iz = NickEq3(irr,z); % This will use the depth vector we got from our
-                       % random walk and our surface irradiance to
-                       % calculate
-                       %M the irradiance at the depth of our phytoplankton.
+                     % random walk and our surface irradiance to
+                     % calculate
+                     % M the irradiance at the depth of our phytoplankton.
 z(:,1:(nt-1))=[]; % Since Nick is only interested in the spread of DT/DD ratios
                 % at the selected end time of the simulation, we can delete
                 % all the earlier depth values of phytoplankton depth and
@@ -132,38 +129,58 @@ T1=DTDDMuSig(Rt,z); % this will output a data table which
                                   % will contain two columns (mean and st
                                   % dev) of data.  Each row will correspond
                                   % to a 1m interval in the water column
+                                  
+TEq = DTDDMuSig(Req(:, end), z); % Use the same function to find the equilibrium R at each depth.                                 
+     
+zPlot = 1:ceil(max(z()));  % just the integer meters of depth
+KzEst = KzFromR(TEq.Mu, T1.Mu, zPlot, r);
+%fprintf('At %d meters, input Kz is %d and the estimated value is %d.\n', ...
+%    20, Req(20), Rt(20));
+                                  
 scrz=get(0,'ScreenSize');
-%figure('Position',scrz/2);
-figure('Position', [1, 1, scrz(3)/5, scrz(4)]);
 
+% Main figure showing DT/DD versus depth.
+figure('Position', [1, 1, scrz(3)/5, scrz(4)]);
 scatter(Rt,z)
 hold on
-plot(T1.Mu,1:ceil(max(z())),'--go','LineWidth',3)
+plot(T1.Mu, zPlot, '--go','LineWidth',3)
 set(gca,'YDir','reverse','XAxisLocation','Top')
-hold on
-plot(T1.Sig,1:ceil(max(z())),'--rd','LineWidth',3)
-ylabel('Depth (m)')
-legend('DT/DD Final','Mean DT/DD','St Dev DT/DD','location','SouthEast')
+%hold on
+plot(T1.Sig, zPlot, '--rd','LineWidth',3)
+plot(TEq.Mu, zPlot, '-b', 'LineWidth', 3)
+plot(T1.Mu-TEq.Mu, zPlot, '--k', 'LineWidth', 3)
+
+%xlim([0 100]);
+ylabel('Depth (m)', 'FontSize', 20)
+legend({'DT/DD Final','Mean DT/DD','St Dev DT/DD', 'Equilibrium R', 'Delta R'},'location','SouthEast', ...
+    'FontSize', 18);
 
 mytitle = sprintf(['Mean DT/DD ratios as a function of depth \n'...
-    'Cells: 10^{%2.1f}, Time: %s hrs, dt: %d s'], n, simtime, dt);
+    'Cells: 10^{%2.1f}, Time: %s hrs'], n, simtime);
 %    'Cells: 10^%i, Kz: %i cm^2/s, Time: %s hrs, dt: %d s'], n, Kz, simtime, dt);
-title(mytitle,'FontSize',12)
+title(mytitle, 'Fontsize', 20)
+hold off;
 
-% See if particles are biased up or down.  They start
-% evenly distributed, so the final distribution should also be constant.
-figure('Position', [scrz(3)/5, 1, scrz(3)/5, scrz(4)]);
-bins = histcounts(z(:, end), maxZ);
-barh(bins, 1);
-hold on;
-plot([N/maxZ, N/maxZ], [0, maxZ]);
+% Results figure showing input and estimated DT/DD
+figure('Position', [scrz(3)*2/5, 1, scrz(3)/5, scrz(4)]);
+% Estimated Kz
+plot(KzEst, zPlot, '-c', 'LineWidth', 2)
 set(gca,'YDir','reverse','XAxisLocation','Top')
-xlabel('Particles per meter');
-ylabel('Depth(m)');
+hold on;
+% Input Kz
+Kz_plot = Kz_distribution(fKz, zPlot, false);
+plot(Kz_plot, zPlot, '--k', 'LineWidth', 2);
+ylabel('Depth (m)', 'FontSize', 20);
+xlim([0, 0.05]);
+ylim([0, 60]);
+legend({'Est Kz', 'Input Kz'},'location','best', 'FontSize', 18);
+mytitle2 = sprintf(['Estimated and input Kz\n'...
+    'Cells: 10^{%2.1f}, Time: %s hrs'], n, simtime);
+title(mytitle2, 'Fontsize', 20)
+hold off; 
 
 Mu=T1.Mu;Sig = T1.Sig;
-t(2)=toc;
 
-delete(h1)
+delete(h1);
 end
 
