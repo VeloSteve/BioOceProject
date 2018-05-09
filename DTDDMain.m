@@ -130,8 +130,10 @@ T1=DTDDMuSig(Rt,z); % this will output a data table which
                                   % dev) of data.  Each row will correspond
                                   % to a 1m interval in the water column
                                   
-TEq = DTDDMuSig(Req(:, end), z); % Use the same function to find the equilibrium R at each depth.                                 
-     
+% TEq = DTDDMuSig(Req(:, end), z); % Use the same function to find the equilibrium R at each depth.   
+eq = load('ZeroKz_default6H.mat', 'T1');
+TEq = eq.T1;
+   
 zPlot = 1:ceil(max(z()));  % just the integer meters of depth
 KzEst = KzFromR(TEq.Mu, T1.Mu, zPlot, r);
 %fprintf('At %d meters, input Kz is %d and the estimated value is %d.\n', ...
@@ -180,6 +182,7 @@ title(mytitle2, 'Fontsize', 20)
 hold off; 
 
 Mu=T1.Mu;Sig = T1.Sig;
+% Only enable for setting base Req: save('ZeroKz_default6H.mat', 'T1')
 
 delete(h1);
 end
