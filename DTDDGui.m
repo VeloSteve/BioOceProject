@@ -1,4 +1,4 @@
-function DTDDGui(varargin)
+function [f] = DTDDGui(varargin)
 %DTDDGUI This function runs the GUI by which users interact with the DTDD
 %simulation.
 %   This function generates a GUI that users will use to run the DT/DD

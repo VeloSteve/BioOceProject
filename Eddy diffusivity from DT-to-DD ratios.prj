@@ -1,0 +1,83 @@
+<deployment-project plugin="plugin.apptool" plugin-version="1.0">
+  <configuration build-checksum="1474804335" file="D:\GitHub\BioOceProject\Eddy diffusivity from DT-to-DD ratios.prj" location="D:\GitHub\BioOceProject" name="Eddy diffusivity from DT-to-DD ratios" target="target.mlapps" target-name="Package App">
+    <param.appname>Eddy diffusivity from DT-to-DD ratios</param.appname>
+    <param.authnamewatermark>Steve Ryan</param.authnamewatermark>
+    <param.email>jaryan@csumb.edu</param.email>
+    <param.company>Moss Landing Marine Laboratories</param.company>
+    <param.icon>${PROJECT_ROOT}\Eddy diffusivity from DT-to-DD ratios_resources\icon_24.png</param.icon>
+    <param.icons>
+      <file>${PROJECT_ROOT}\Eddy diffusivity from DT-to-DD ratios_resources\icon_48.png</file>
+      <file>${PROJECT_ROOT}\Eddy diffusivity from DT-to-DD ratios_resources\icon_24.png</file>
+      <file>${PROJECT_ROOT}\Eddy diffusivity from DT-to-DD ratios_resources\icon_16.png</file>
+    </param.icons>
+    <param.summary>A model relating pigment ratios and vertical eddy diffusion.</param.summary>
+    <param.description>This app accepts input for Kz (vertical eddy diffusion) and computes a Diatoxanthin/Didinoxanthin profile by using reasonable assumptions for incident light and a random walk for particle locations.  From this, an estimated Kz profile is calculated.  The goal is to explore this approach as a way if estimating Kz from DT/DD ratio measured in the field.</param.description>
+    <param.screenshot>${PROJECT_ROOT}\images\Rats_defaultKz_6h_60mCline.png</param.screenshot>
+    <param.version>1.0</param.version>
+    <param.products.name />
+    <param.products.id />
+    <param.products.version />
+    <param.platforms />
+    <param.output>D:\GitHub\BioOceProject</param.output>
+    <param.guid>d236b273-ee21-4ae5-88b9-cf45bf0401c5</param.guid>
+    <unset>
+      <param.version />
+      <param.products.name />
+      <param.products.id />
+      <param.products.version />
+      <param.platforms />
+      <param.output />
+    </unset>
+    <fileset.main>
+      <file>${PROJECT_ROOT}\DTDDGui.m</file>
+    </fileset.main>
+    <fileset.depfun>
+      <file>${PROJECT_ROOT}\dayIrr.mat</file>
+      <file>${PROJECT_ROOT}\DepthArray.m</file>
+      <file>${PROJECT_ROOT}\DepthPlots.m</file>
+      <file>${PROJECT_ROOT}\derivative.m</file>
+      <file>${PROJECT_ROOT}\derivative_2nd.m</file>
+      <file>${PROJECT_ROOT}\DTDDMain.m</file>
+      <file>${PROJECT_ROOT}\DTDDMuSig.m</file>
+      <file>${PROJECT_ROOT}\irrCall.m</file>
+      <file>${PROJECT_ROOT}\Kz_distribution.m</file>
+      <file>${PROJECT_ROOT}\KzFromR.m</file>
+      <file>${PROJECT_ROOT}\NickEq1.m</file>
+      <file>${PROJECT_ROOT}\NickEq2.m</file>
+      <file>${PROJECT_ROOT}\NickEq3.m</file>
+      <file>${PROJECT_ROOT}\ZeroKz_default6H.mat</file>
+    </fileset.depfun>
+    <fileset.resources />
+    <fileset.package />
+    <build-deliverables>
+      <file location="D:\GitHub" name="BioOceProject" optional="false">D:\GitHub\BioOceProject</file>
+    </build-deliverables>
+    <workflow />
+    <matlab>
+      <root>C:\Program Files\MATLAB\R2017b</root>
+      <toolboxes>
+        <toolbox name="matlabcoder" />
+      </toolboxes>
+      <toolbox>
+        <matlabcoder>
+          <enabled>true</enabled>
+        </matlabcoder>
+      </toolbox>
+    </matlab>
+    <platform>
+      <unix>false</unix>
+      <mac>false</mac>
+      <windows>true</windows>
+      <win2k>false</win2k>
+      <winxp>false</winxp>
+      <vista>false</vista>
+      <linux>false</linux>
+      <solaris>false</solaris>
+      <osver>6.1</osver>
+      <os32>false</os32>
+      <os64>true</os64>
+      <arch>win64</arch>
+      <matlab>true</matlab>
+    </platform>
+  </configuration>
+</deployment-project>

@@ -13,8 +13,7 @@ function [z] = DepthArray(N, dt, nt, Kz, maxZ)
 %       z - a N x nt matrix of the depth experienced by each cell for each
 %       step in time
 
-    z = zeros(N, nt); % holding vector for our depth values. 
-
+    z = zeros(N, nt); % holding vector for our depth values.    
     z(:, 1) = linspace(0, maxZ, N);
     Kz_vec = Kz_distribution(Kz, z(:, 1), true);
     naive = false;
@@ -104,15 +103,16 @@ function [z] = DepthArray(N, dt, nt, Kz, maxZ)
         z(:,i)=z(:,i-1)+pm;
         % Calculate boundaries in vector form.  1.147 seconds for n=4 becomes
         % 0.16 seconds for the whole function.  
+
         ltz = find(z(:, i) < 0);
         z(ltz, i) = -z(ltz, i);
         gtmax = find(z(:, i) > maxZ);
-        z(gtmax, i) = 2*maxZ - z(gtmax, i);
-                   
+        z(gtmax, i) = 2*maxZ - z(gtmax, i);        
+       
+        
       clear pm;
     end
     clear i; clear j; clear walk, clear pm, clear ltz, clear gtmax;
-    
     DepthPlots(z, maxZ, N);
     
 end
